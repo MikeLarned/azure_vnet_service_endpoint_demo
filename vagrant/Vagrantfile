@@ -1,9 +1,9 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
   config.vm.hostname = "hl-endpoints-demo-host"
-  config.vm.provision :docker
-  config.vm.provision :docker_compose
   config.vm.provision "shell", path: "bootstrap.sh"
+
+  config.vm.synced_folder "../build", "/home/vagrant/build"
 
   config.vm.provider "virtualbox" do |v|
     v.memory = 4096

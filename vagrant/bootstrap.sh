@@ -19,18 +19,9 @@ sudo apt-key --keyring $MS_KEYRING adv --keyserver $MS_KEYSERVER --recv-keys $MS
 sudo apt-get update
 sudo apt-get install unzip -y
 sudo apt-get install azure-cli
-sudo az acs kubernetes install-cli
-
-# Certificate Creation
-sudo apt-get install strongswan strongswan-plugin-eap-mschapv2 moreutils iptables-persistent
-
-# HELM
-curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
-chmod 700 get_helm.sh
-./get_helm.sh
 
 # TERRAFORM
 # https://letslearndevops.com/2017/07/23/how-to-install-terraform/
-wget $TERRAFORM_ZIP_URL
+wget -q $TERRAFORM_ZIP_URL
 unzip $TERRAFORM_ZIP
-sudo mv terraform /usr/local/bin/
+sudo install terraform /usr/local/bin/

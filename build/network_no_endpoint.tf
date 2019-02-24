@@ -19,13 +19,25 @@ resource "azurerm_network_security_group" "network" {
   name                = "vnet-nsg-endpoints-demo-wu2"
   location            = "${azurerm_resource_group.network.location}"
   resource_group_name = "${azurerm_resource_group.network.name}"
+
+  security_rule {
+        name                       = "SSH"
+        priority                   = 1001
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
 }
 
 resource "azurerm_virtual_network" "network" {
   name                = "vnet-endpoints-demo-wu2"
   resource_group_name = "${azurerm_resource_group.network.name}"
   location            = "${azurerm_resource_group.network.location}"
-  address_space       = "10.200.0.0/16"
+  address_space       = ["10.200.0.0/16"]
 }
 
 resource "azurerm_subnet" "front" {
@@ -38,46 +50,32 @@ resource "azurerm_subnet" "front" {
 resource "azurerm_subnet" "back" {
   name                 = "back"
   resource_group_name  = "${azurerm_resource_group.network.name}"
-  address_prefix       = "10.200.10.0/24"
+  address_prefix       = "10.200.15.0/24"
   virtual_network_name = "${azurerm_virtual_network.network.name}"
 }
 
-resource "azurerm_subnet" "gateway" {
-  name                 = "GatewaySubnet"
-  resource_group_name  = "${azurerm_resource_group.network.name}"
-  address_prefix       = "10.201.0.0/24"
-  virtual_network_name = "${azurerm_virtual_network.network.name}"
-}
-
-# PostGre Database
-resource "azurerm_postgresql_server" "data" {
-  name                = "postgre-endpoints-demo-wu2"
-  location            = "${azurerm_resource_group.network.location}"
-  resource_group_name = "${azurerm_virtual_network.network.name}"
-
-  sku {
-    name     = "GP_Gen5_2"
-    capacity = 2
-    tier     = "GeneralPurpose"
-    family   = "Gen5"
-  }
-
-  storage_profile {
-    storage_mb            = 5120
-    backup_retention_days = 7
-    geo_redundant_backup  = "Disabled"
-  }
-
-  administrator_login          = "admin"
-  administrator_login_password = "admin"
-  version                      = "9.6"
-  ssl_enforcement              = "Enabled"
+# Azure Storage Account
+resource "azurerm_storage_account" "network" {
+  name                     = "saendpointsdemowu2"
+  resource_group_name      = "${azurerm_resource_group.network.name}"
+  location                 = "${azurerm_resource_group.network.location}"
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+  enable_https_traffic_only = true
 }
 
 # App (Linux VM on the Front Subnet)
+
+resource "azurerm_public_ip" "app" {
+    name                         = "app-publicip-endpoints-demo-wu2"
+    location                     = "${azurerm_resource_group.network.location}"
+    resource_group_name          = "${azurerm_resource_group.network.name}"
+    allocation_method            = "Static"
+}
+
 resource "azurerm_network_interface" "nic" {
     name                      = "app-nic-endpoints-demo-wu2"
-    location                  = "eastus"
+    location                  = "${azurerm_resource_group.network.location}"
     resource_group_name       = "${azurerm_resource_group.network.name}"
     network_security_group_id = "${azurerm_network_security_group.network.id}"
 
@@ -85,14 +83,15 @@ resource "azurerm_network_interface" "nic" {
         name                          = "app-nic-config-endpoints-demo-wu2"
         subnet_id                     = "${azurerm_subnet.front.id}"
         private_ip_address_allocation = "static"
-        private_ip_address            = "10.200.10.1"
+        private_ip_address            = "10.200.10.5"
+        public_ip_address_id          = "${azurerm_public_ip.app.id}"
     }
 }
 
-resource "azurerm_virtual_machine" "myterraformvm" {
+resource "azurerm_virtual_machine" "app" {
     name                  = "app-endpoints-demo-wu2"
-    location              = "eastus"
-    resource_group_name   = "${azurerm_resource_group.network.location}"
+    location              = "${azurerm_resource_group.network.location}"
+    resource_group_name   = "${azurerm_resource_group.network.name}"
     network_interface_ids = ["${azurerm_network_interface.nic.id}"]
     vm_size               = "Standard_DS1_v2"
 
@@ -113,7 +112,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     os_profile {
         computer_name  = "app-endpoints-vm"
         admin_username = "azureuser"
-        admin_password = "password"
+        admin_password = "5UqCM3JQf3t4UCtK"
     }
 
     os_profile_linux_config {
@@ -125,3 +124,4 @@ resource "azurerm_virtual_machine" "myterraformvm" {
 # Resource
 # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/terraform-create-complete-vm
 # https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal
+# https://docs.microsoft.com/en-us/azure/azure-monitor/platform/diagnostic-logs-overview
