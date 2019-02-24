@@ -24,4 +24,4 @@ sudo apt-get install azure-cli
 # https://letslearndevops.com/2017/07/23/how-to-install-terraform/
 wget -q $TERRAFORM_ZIP_URL
 unzip $TERRAFORM_ZIP
-sudo install terraform /usr/local/bin/
+sudo install terraform /usr/local/bin/ 
