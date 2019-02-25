@@ -15,6 +15,14 @@ resource "azurerm_resource_group" "network" {
     location = "westus2"
 }
 
+resource "azurerm_log_analytics_workspace" "test" {
+  name                = "ala-endpoints-demo-wu2"
+  location            = "${azurerm_resource_group.network.location}"
+  resource_group_name = "${azurerm_resource_group.network.name}"
+  sku                 = "Free"
+  retention_in_days   = 30
+}
+
 resource "azurerm_network_security_group" "network" {
   name                = "vnet-nsg-endpoints-demo-wu2"
   location            = "${azurerm_resource_group.network.location}"
