@@ -1,9 +1,9 @@
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
-    subscription_id = "56f31ed7-84da-467b-80d2-71d3b7d2a7ce"
-    client_id       = "c371f24b-9107-40f8-848f-5146f5c15d4b"
-    client_secret   = "t-O7hX^d]{9NV7l?PYl$mp:g3ruvZI->QCBRT{c{*&o5oUz7}.pF%"
-    tenant_id       = "911630eb-3460-44db-b2a7-433e8547de63" # DirectoryID
+    subscription_id = ""
+    client_id       = ""
+    client_secret   = ""
+    tenant_id       = "" # DirectoryID
 }
 
 # Virtual Network Setup 
