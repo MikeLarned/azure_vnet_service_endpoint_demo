@@ -25,6 +25,7 @@ AZURE_STORAGE_KEY=$2
 echo "$BLOB_NAME" > $FILE
 az storage container create --name $CONTAINER_NAME --account-key "$AZURE_STORAGE_KEY" --account-name "$AZURE_STORAGE_ACCOUNT" --output none
 
+
 echo ""
 echo "[UPLOAD] => $FILE"
 echo ""
