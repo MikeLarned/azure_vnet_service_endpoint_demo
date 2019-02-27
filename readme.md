@@ -16,58 +16,67 @@ To simulate an real application living in our front subnet, an Ubuntu VM named `
 
 To setup the environment:
 
-1. Update the AzureRM provider settings at the top of the network.tf script. You will need an App registration in Azure Active Directory with a client id and secret that has contributor access to the subscription.  See the [Service Principal Client Secret](https://www.terraform.io/docs/providers/azurerm/auth/service_principal_client_secret.html) documentation.
+1. **Update Terraform AzureRM Provider Settings**
 
-```
-provider "azurerm" {
-    subscription_id = "SUBSCRIPTION_ID"
-    client_id       = "CLIENT_ID"
-    client_secret   = "CLIENT_SECRET"
-    tenant_id       = "DIRECTORY_ID" # DirectoryID
-}
-```
-2.  Plan and Apply the Terraform script.  This sets up the network, storage account, subnets, virtual machine and additional infrastrucre to test the network.
+    At the top of the network.tf script. You will need an App registration in Azure Active Directory with a client id and secret that has contributor access to the subscription.  See the [Service Principal Client Secret](https://www.terraform.io/docs/providers/azurerm/auth/service_principal_client_secret.html) documentation.
 
-*Plan*
+    ```
+    provider "azurerm" {
+        subscription_id = "SUBSCRIPTION_ID"
+        client_id       = "CLIENT_ID"
+        client_secret   = "CLIENT_SECRET"
+        tenant_id       = "DIRECTORY_ID" # DirectoryID
+    }
+    ```
+2.  **Plan and Apply the Terraform script**
 
-```
-terraform plan -out out.plan
-```
+    Sets up the network, storage account, subnets, virtual machine and additional infrastrucre to test the network.
 
-*Apply*
-```
-terraform apply out.plan
-```
+    Plan
 
-3.  SSH into the virtual machine.  You first need to get the public ip of the virtual machine
-on the network.
+    ```
+    terraform plan -out out.plan
+    ```
 
-```
-az network public-ip show -g rg-endpoints-demo-wu2 -n app-publicip-endpoints-demo-wu2 --query ipAddress
-```
+    Apply
+    ```
+    terraform apply out.plan
+    ```
 
-Using the public ip, SSH into the virtual machine. The demo uses a username and password to SSH.  You wouldn't want to use this setup in a production environment.  The password setup in the network terraform script is ```T3x4stoast```.
+3.  **SSH into the VM**  
 
-```
-ssh azureuser@PUBLIC_IP_ADDRESS
-```
+    You first need to get the public ip of the virtual machine on the network.
 
-4.  Install the Azure CLI. The ```build\azurecli.sh``` script installs Azure CLI into your virtual machine.  You can execute that script remotely from my repo.
+    ```
+    az network public-ip show -g rg-endpoints-demo-wu2 -n app-publicip-endpoints-demo-wu2 --query ipAddress
+    ```
 
-```
-curl -s https://raw.githubusercontent.com/MikeLarned/azure_vnet_service_endpoint_demo/master/build/azurecli.sh | bash
-```
+    Using the public ip, SSH into the virtual machine. The demo uses a username and password to SSH.  You wouldn't want to use this setup in a production environment.  The password setup in the network terraform script is ```T3x4stoast```.
 
-5.  Storage Account Key.  To write blobs to the storage, we need the storage account key.  You can access this key through the Azure CLI.  Key1 or Key2 should work.
+    ```
+    ssh azureuser@PUBLIC_IP_ADDRESS
+    ```
 
-```
-az storage account keys list -g rg-endpoints-demo-wu2 -n saendpointsdemowu2
-```
+4.  **Install the Azure CLI** 
 
-6.  Enable Request Logging in Azure Storage.  You want to enable minute request logging for ```saendpointsdemowu2``` storage account.  This writes logs to a folder called $logs.  These log files allow us to view inbound ips for storage account requests.  
+    The ```build\azurecli.sh``` script installs Azure CLI into your virtual machine.  You can execute that script remotely from my repo.
 
+    ```
+    curl -s https://raw.githubusercontent.com/MikeLarned/azure_vnet_service_endpoint_demo/master/build/azurecli.sh | bash
+    ```
 
-## Enables Request Logging for the Storage Account
+5.  **Storage Account Key**  
+
+    To write blobs to the storage, we need the storage account key.  You can access this key through the Azure CLI.  Key1 or Key2 should work.
+
+    ```
+    az storage account keys list -g rg-endpoints-demo-wu2 -n saendpointsdemowu2
+    ```
+
+6.  **Enable Request Logging in Azure Storage**  
+
+    You want to enable minute request logging for ```saendpointsdemowu2``` storage account.  This writes logs to a folder called $logs.  These log files allow us to view inbound ips for storage account requests.  
+
 
 ## Write Blobs to Storage
 
