@@ -1,10 +1,15 @@
-# Configure the Microsoft Azure Provider
+Configure the Microsoft Azure Provider
 provider "azurerm" {
     subscription_id = ""
     client_id       = ""
     client_secret   = ""
     tenant_id       = "" # DirectoryID
 }
+
+locals {
+  public_ip = "XX.XXX.XXX.XXX"
+}
+
 
 # Virtual Network Setup 
 #   No Service Endpoints enabled on the vnet.  Traffic from our app to Azure services are
@@ -58,6 +63,28 @@ resource "azurerm_storage_account" "network" {
   enable_https_traffic_only = true
   network_rules {
     virtual_network_subnet_ids = ["${azurerm_subnet.front.id}"]
+    ip_rules                   = ["${local.public_ip}"]
+  }
+}
+
+resource "azurerm_monitor_log_profile" "network" {
+  name = "default"
+
+  categories = [
+    "Action",
+    "Delete",
+    "Write",
+  ]
+
+  locations = [
+    "${azurerm_resource_group.network.location}"
+  ]
+
+  storage_account_id = "${azurerm_storage_account.network.id}"
+
+  retention_policy {
+    enabled = true
+    days    = 7
   }
 }
 
